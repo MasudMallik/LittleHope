@@ -27,7 +27,5 @@ async def login(request:Request,token:str=Depends(outh2)):
         return {"data":data}
 
 @app.post("/register")
-async def new_user(request:Request):
-    data= await request.json()
-    print(data)
-    return {"data":data}
+async def new_user(user:User_for_reg):
+    return {"user_details":"successfully created"}

@@ -208,18 +208,25 @@ def registration():
             st.session_state.login=True
             st.rerun()
         if col1.button("Registration", type="primary", use_container_width=True):
-            if password==confirm_password and name and email and contact_no and state and district:
                 response=requests.post("http://127.0.0.1:8000/register",
                 json={
                     "name":name,
                     "email":email,
                     "contact_no":contact_no,
                     "state":state,
-                    "district":district
+                    "district":district,
+                    "password":password
                 })
                 if response.status_code==200:
-                    st.switch_page("pages/report_child.py")
-                st.write(st.session_state.login)
+                    if "user_details"  in st.session_state:
+                        data=response.json()
+                        st.session_state.user_details=data
+                        st.switch_page("pages/report_child.py")
+                err=response.json()
+                if "detail" in err:
+                     for error in err["detail"]:
+                          st.write(error["msg"])
+             
 
 
 if st.session_state.login==True:
