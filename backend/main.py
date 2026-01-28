@@ -1,7 +1,7 @@
 from fastapi import FastAPI,Depends,Request
-from backend.modules.user_valid import User_for_login,User_for_reg
-from backend.modules.password_hash import hash_password,check_password
-from backend.modules.token_create import create_token,decode_token
+from modules.user_valid import User_for_login,User_for_reg
+from modules.password_hash import hash_password,check_password
+from modules.token_create import create_token,decode_token
 from fastapi.security import OAuth2PasswordBearer
 
 outh2=OAuth2PasswordBearer(tokenUrl="token")
