@@ -1,10 +1,1 @@
-fastapi
-uvicorn
-pydantic
-pydantic[email]
-python-multipart
-dotenv
-pymongo
 streamlit
-bcrypt
-pyjwt
