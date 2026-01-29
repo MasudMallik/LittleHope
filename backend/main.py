@@ -1,8 +1,15 @@
 from fastapi import FastAPI,Depends,Request
-from modules.user_valid import User_for_login,User_for_reg
-from modules.password_hash import hash_password,check_password
-from modules.token_create import create_token,decode_token
+from backend.modules.user_valid import User_for_login,User_for_reg
+from backend.modules.password_hash import hash_password,check_password
+from backend.modules.token_create import create_token,decode_token
 from fastapi.security import OAuth2PasswordBearer
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+client=MongoClient(os.getenv("mongo_db_string"))
+
 
 outh2=OAuth2PasswordBearer(tokenUrl="token")
 
@@ -28,4 +35,11 @@ async def login(request:Request,token:str=Depends(outh2)):
 
 @app.post("/register")
 async def new_user(user:User_for_reg):
-    return {"user_details":"successfully created"}
+    new_hash_pw=hash_password(user.password)
+    db=client["user_db"]
+    collection=db["all_users"]
+    exist=collection.find_one({"email":user.email})
+    if exist:
+        return {"user_details":"you already have an account please login"}
+    collection.insert_one({"name":user.name,"email":user.email,"contact":user.contact_no,"state":user.state,"district":user.district,"password":new_hash_pw})
+    return {"user_details":"successfully created","details":{"name":user.name}}
