@@ -25,13 +25,15 @@ async def user_token(request:Request):
     return {"token":token,"access_type":"bearer"}
 
 @app.post("/login")
-async def login(request:Request,token:str=Depends(outh2)):
-    try:
-        data=decode_token(token)
-    except Exception as e:
-        return e
+async def login(user:User_for_login):
+    db=client["user_db"]
+    collections=db["all_users"]
+    k=collections.find_one({"email":user.email})
+    if not k:
+        return {"login":False}
     else:
-        return {"data":data}
+        if(check_password(user.password,k.get("passwords"))):
+            return {"login":True}
 
 @app.post("/register")
 async def new_user(user:User_for_reg):
@@ -40,6 +42,6 @@ async def new_user(user:User_for_reg):
     collection=db["all_users"]
     exist=collection.find_one({"email":user.email})
     if exist:
-        return {"user_details":"you already have an account please login"}
+        return {"user_details":"True"}
     collection.insert_one({"name":user.name,"email":user.email,"contact":user.contact_no,"state":user.state,"district":user.district,"password":new_hash_pw})
     return {"user_details":"successfully created","details":{"name":user.name}}

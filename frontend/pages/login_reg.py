@@ -17,14 +17,17 @@ def login():
         if col1.button("Login", type="primary", use_container_width=True):
             if email and password:
                 response = requests.post(
-                    "http://127.0.0.1:8000/token",
+                    "http://127.0.0.1:8000/login",
                     json={"email": email, "password": password}
                 )
                 if response.status_code == 200:
-                    tok=response.json()
-                    st.session_state.token=tok["access_type"]+" "+tok["token"]
-                    res=requests.post( "http://127.0.0.1:8000/login",headers = {"Authorization": f"Bearer {st.session_state.token}"}
-        )
+        #             tok=response.json()
+        #             st.session_state.token=tok["access_type"]+" "+tok["token"]
+        #             res=requests.post( "http://127.0.0.1:8000/login",headers = {"Authorization": f"Bearer {st.session_state.token}"}
+        # )
+                    result=response.json()
+                    if(result.get("login")==False):
+                        st.info("you dont have an account please create it")
                     st.success(response.json())
                 else:
                     st.error("Login failed ❌")
@@ -195,7 +198,7 @@ def registration():
         password = st.text_input(
             "Enter password",
             placeholder="At least 1 uppercase, 1 lowercase,1 special character, and 1 digit",
-            type="password"
+            type="password",
         )
         confirm_password = st.text_input(
             "Confirm password",
@@ -219,11 +222,15 @@ def registration():
                     "password":password
                 })
                 st.write(response.status_code)
-                if response.status_code==200:
-                    if "user_details" not in st.session_state:
-                        data=response.json()
-                        st.session_state.user_details=data
-                        st.switch_page("pages/report_child.py")
+                if response.status_code == 200:
+                    data = response.json()
+                    st.session_state.user_details = data
+
+                    if data.get("user_details") == "True":
+                        st.info("You already have an account, please login...")
+                    else:
+                                st.success("Successfully logged in")
+                                st.switch_page("pages/report_child.py")
                 err=response.json()
                 if "detail" in err:
                      for error in err["detail"]:
