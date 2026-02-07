@@ -86,3 +86,9 @@ async def update_password(request:Request,token:str=Depends(outh2)):
     else:
         return {"password_update":False}
         
+
+@app.post("/new_case")
+async def new_case(request:Request,token:str=Depends(outh2)):
+    data=await request.json()
+    print(data["child_info"])
+    return {"data":data}

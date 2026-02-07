@@ -21,10 +21,14 @@ setting=st.Page(
     title="settings",
     icon="🛠️"
 )
+terms_and_conditions=st.Page(
+    page="pages/terms_and_conditions.py",
+    title="Terms and Conditions",
+    icon="📜"
+)
 pg=st.navigation(
     {
-        "information":[home,childs],
-        "upload missing details":[log,cases,setting]
+        "information":[home,childs,log,cases,setting,terms_and_conditions]
     }
 )
 

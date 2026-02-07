@@ -15,7 +15,8 @@ else:
     def_state=user["data"].get("state")
     def_district=user["data"].get("district")
     state=st.selectbox("Your State: ",list(states),index=states.index(def_state))
-    district=st.selectbox("Choose your District ",list(districts[def_state]))
+    i=districts[def_state].index(def_district)
+    district=st.selectbox("Choose your District ",list(districts[def_state]),index=5)
     if st.button("Submit",type="primary"):
             with st.status("updating details: "):
                    update_user=requests.put("http://127.0.0.1:8000/update_user_det",headers={"Authorization":f"Bearer {st.session_state.token["token"]}"},
