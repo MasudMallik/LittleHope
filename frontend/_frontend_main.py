@@ -16,10 +16,16 @@ cases=st.Page(
     page="pages/report_child.py",
     title="upload details"
 )
+setting=st.Page(
+    page="pages/setting.py",
+    title="settings",
+    icon="🛠️"
+)
 pg=st.navigation(
     {
         "information":[home,childs],
-        "upload missing details":[log,cases]
+        "upload missing details":[log,cases,setting]
     }
 )
+
 pg.run()

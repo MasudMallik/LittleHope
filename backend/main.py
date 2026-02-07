@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Depends,Request
+from fastapi import FastAPI,Depends,Request,HTTPException
 from backend.modules.user_valid import User_for_login,User_for_reg
 from backend.modules.password_hash import hash_password,check_password
 from backend.modules.token_create import create_token,decode_token
@@ -32,8 +32,10 @@ async def login(user:User_for_login):
     if not k:
         return {"login":False}
     else:
-        if(check_password(user.password,k.get("passwords"))):
-            return {"login":True}
+        if(check_password(user.password,k.get("password"))):
+            return {"login":True,"name":k.get("name"),"email":k.get("email"),"state":k.get("state"),"district":k.get("district")}
+        else:
+            return {"login":True,"error":"password didnt match"}
 
 @app.post("/register")
 async def new_user(user:User_for_reg):
@@ -44,4 +46,43 @@ async def new_user(user:User_for_reg):
     if exist:
         return {"user_details":"True"}
     collection.insert_one({"name":user.name,"email":user.email,"contact":user.contact_no,"state":user.state,"district":user.district,"password":new_hash_pw})
-    return {"user_details":"successfully created","details":{"name":user.name}}
+    return {"user_details":"successfully created"}
+
+@app.post("/get_user_details")
+async def get_user_det(request:Request,token:str=Depends(outh2)):
+    try:
+        data=decode_token(token=token)
+    except Exception:
+        return {"token":"not decoded"}
+    else:
+        return {"data":data}
+@app.put("/update_user_det")
+async def update_user_info(request:Request,token:str=Depends(outh2)):
+    new_data=await request.json()
+    db=client["user_db"]
+    collection=db["all_users"]
+    try:
+        collection.update_one({"email":new_data["email"]},
+                              {"$set": {"name":new_data["name"],"district":new_data["district"],"state":new_data["state"]} })
+    except Exception:
+        return{"update":False}
+    else:
+        return{"update":True}
+    
+
+@app.put("/update_password")
+async def update_password(request:Request,token:str=Depends(outh2)):
+    data=await request.json()
+    db=client["user_db"]
+    collection=db["all_users"]
+    k=collection.find_one({"email":data["email"]})
+    print(data["old_password"])
+    if check_password(data["old_password"],k["password"]):
+        temp=hash_password(data["new_password"])
+        result=collection.update_one({"email":data["email"]},{
+                "$set": {"password":temp}
+        })
+        return {"password_update":True}
+    else:
+        return {"password_update":False}
+        
