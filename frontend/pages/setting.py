@@ -21,7 +21,10 @@ else:
     def_district=user["data"].get("district")
     state=st.selectbox("Your State: ",list(states),index=states.index(def_state))
     i=districts[def_state].index(def_district)
-    district=st.selectbox("Choose your District ",list(districts[def_state]),index=5)
+    if state==def_state:
+        district=st.selectbox("Choose your District ",list(districts[def_state]),index=5)
+    else:
+        district=st.selectbox("Choose your District ",list(districts[state]))
     if st.button("Submit",type="primary"):
             with st.status("updating details: "):
                    update_user=requests.put("https://littlehope.onrender.com/update_user_det",headers={"Authorization":f"Bearer {st.session_state.token["token"]}"},
