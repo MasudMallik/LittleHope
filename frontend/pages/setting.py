@@ -22,7 +22,7 @@ else:
     state=st.selectbox("Your State: ",list(states),index=states.index(def_state))
     i=districts[def_state].index(def_district)
     if state==def_state:
-        district=st.selectbox("Choose your District ",list(districts[def_state]),index=5)
+        district=st.selectbox("Choose your District ",list(districts[def_state]),index=i)
     else:
         district=st.selectbox("Choose your District ",list(districts[state]))
     if st.button("Submit",type="primary"):
