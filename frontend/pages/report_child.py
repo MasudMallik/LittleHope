@@ -105,7 +105,7 @@ else:
                     other["date_and_time"]=str(datetime.datetime.now())
                     files = supabase.storage.from_(os.getenv("bucket")).list()
                     if img_path is not None:
-                        file_path = f"images/{img_path.name}.{len(files)+1}"
+                        file_path = f"images/{img_path.name}.{len(files)}"
                         file_bytes = img_path.read()
                         res = supabase.storage.from_(os.getenv("bucket")).upload(file_path, file_bytes)
 
@@ -115,7 +115,7 @@ else:
                         other["file_path"]=file_path
 
                     with st.status("uploading your details.."):
-                              data=requests.post("http://127.0.0.1:8000/new_case",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"},
+                              data=requests.post("https://littlehope.onrender.com/new_case",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"},
                                                                                                                          json={
                                                                                                                                "child_info":child,
                                                                                                                                "parent_info":parent,

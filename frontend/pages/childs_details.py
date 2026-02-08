@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 st.title("misssing childs")
 st.divider()
-all_posts=requests.get("http://127.0.0.1:8000/all_posts")
+all_posts=requests.get("https://littlehope.onrender.com/all_posts")
 if all_posts.status_code==200:
     data=all_posts.json()
     data=data["result"]

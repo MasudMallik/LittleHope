@@ -60,3 +60,7 @@ Law enforcement agencies
 Verified rescue organizations""")
 st.subheader("Legal Warning Statement")
 st.write("Submitting false or misleading information regarding a missing child is a punishable offense under applicable laws.")
+st.subheader("Notice")
+st.write("""This platform is currently developed for demonstration, educational, and project purposes only. Users are strongly advised not to upload or share real personal, sensitive, or confidential information related to themselves, children, or any third party.
+
+By continuing to use this platform, you acknowledge that any information submitted is done voluntarily and at your own discretion. The developers of this platform are not responsible for any misuse, exposure, or risks associated with sharing personal data during this demo phase.""")

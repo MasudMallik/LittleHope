@@ -18,7 +18,7 @@ def login():
         if col1.button("Login", type="primary", use_container_width=True):
             if email and password:
                 response = requests.post(
-                    "http://127.0.0.1:8000/login",
+                    "https://littlehope.onrender.com/login",
                     json={"email": email, "password": password}
                 )
                 if response.status_code == 200:
@@ -28,7 +28,7 @@ def login():
                     elif "error" in result:
                          st.error("password didnt match")
                     else:
-                        token=requests.post("http://127.0.0.1:8000/token",
+                        token=requests.post("https://littlehope.onrender.com/token",
                                              json={
                                                   "name":result.get("name"),"email":result.get("email"),"state":result.get("state"),"district":result.get("district")
                                              })
@@ -71,7 +71,7 @@ def registration():
             st.rerun()
         if col1.button("Registration", type="primary", use_container_width=True):
                 st.session_state.clear()
-                response=requests.post("http://127.0.0.1:8000/register",
+                response=requests.post("https://littlehope.onrender.com/register",
                 json={
                     "name":name,
                     "email":email,
@@ -88,7 +88,7 @@ def registration():
                     if data.get("user_details") == "True":
                         st.info("You already have an account, please login...")
                     else:
-                                tok=requests.post("http://127.0.0.1:8000/token",
+                                tok=requests.post("https://littlehope.onrender.com/token",
                                                   json={"name":name,"email":email,"state":state,"district":district})
                                 if tok.status_code==200:
                                     token=tok.json()

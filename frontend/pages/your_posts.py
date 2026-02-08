@@ -7,7 +7,7 @@ if "token" not in st.session_state:
 else:
     st.title("Your posts...")
     st.divider()
-    data=requests.get("http://127.0.0.1:8000/your_posts",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"})
+    data=requests.get("https://littlehope.onrender.com/your_posts",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"})
     if data.status_code==200:
         data=data.json()
         if data["posts"]==False:
@@ -56,7 +56,7 @@ else:
                 col2.subheader(f"post No:{i}")
                 if col2.button(f"Delete post: {i}",type="primary"):
                     with col2.status("post deletion processing..."):
-                        del_post=requests.delete(f"http://127.0.0.1:8000/delete_post/{post['_id']}",headers={"Authorization":f"Bearer {st.session_state.token["token"]}"})
+                        del_post=requests.delete(f"https://littlehope.onrender.com/delete_post/{post['_id']}",headers={"Authorization":f"Bearer {st.session_state.token["token"]}"})
                     if del_post.status_code==200:
                         ans=del_post.json()
                         if ans["delete_post"]==False:

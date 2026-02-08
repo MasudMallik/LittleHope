@@ -13,7 +13,7 @@ elif st.session_state.token["token"]==None:
 else:
     st.title("Settings")
     st.subheader("Your Personal Details: ")
-    user_data=requests.post("http://127.0.0.1:8000/get_user_details", headers={"Authorization": f"Bearer {st.session_state.token["token"]}"})
+    user_data=requests.post("https://littlehope.onrender.com/get_user_details", headers={"Authorization": f"Bearer {st.session_state.token["token"]}"})
     user=user_data.json()
     name=st.text_input("Your name: ",value= user["data"].get("name"))
     email=st.text_input("your email: ",value=user["data"].get("email"),disabled=True)
@@ -24,7 +24,7 @@ else:
     district=st.selectbox("Choose your District ",list(districts[def_state]),index=5)
     if st.button("Submit",type="primary"):
             with st.status("updating details: "):
-                   update_user=requests.put("http://127.0.0.1:8000/update_user_det",headers={"Authorization":f"Bearer {st.session_state.token["token"]}"},
+                   update_user=requests.put("https://littlehope.onrender.com/update_user_det",headers={"Authorization":f"Bearer {st.session_state.token["token"]}"},
                                  json={
                                      "name":name,
                                      "email":email,
@@ -33,7 +33,7 @@ else:
                                  })
             if update_user.status_code==200:
                 st.session_state.token=""
-                token=requests.post("http://127.0.0.1:8000/token",json={
+                token=requests.post("https://littlehope.onrender.com/token",json={
                      "name":name,"email":email,"state":state,"district":district,
                 })
                 st.session_state.token=token.json()
@@ -47,7 +47,7 @@ else:
     confirm_pass=st.text_input("Confirm password: ")
     if st.button("Change Password",type="primary"):
         if new_password==confirm_pass:
-            response=requests.put("http://127.0.0.1:8000/update_password",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"},
+            response=requests.put("https://littlehope.onrender.com/update_password",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"},
                                json={
                                     "email":email,
                                     "old_password":old_password,
@@ -72,7 +72,7 @@ else:
     c4.subheader("Delete Account")
     if col2.button("Delete Account",type="primary",width="stretch"):
         with st.success("Processing..."):
-            del_user=requests.delete("http://127.0.0.1:8000/delete_user",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"})
+            del_user=requests.delete("https://littlehope.onrender.com/delete_user",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"})
         if del_user.status_code==200:
             ans=del_user.json()
             if ans["delete"]==True:
