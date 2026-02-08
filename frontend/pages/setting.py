@@ -1,7 +1,12 @@
 import streamlit as st
 import requests
 from pages.districts import states,districts
+import time
 if "token" not in st.session_state:
+    st.warning("You cannot access this page. please login first")
+    if st.button("Login",type="primary"):
+        st.switch_page("pages/login_reg.py")
+elif st.session_state.token["token"]==None:
     st.warning("You cannot access this page. please login first")
     if st.button("Login",type="primary"):
         st.switch_page("pages/login_reg.py")
@@ -56,6 +61,23 @@ else:
                     st.error("old password is not matched")
         else:
             st.error("password and confirm password missmatch..")
-    if st.button("logout",type="primary"):
+    st.divider()
+    col1,col2=st.columns(2)
+    c1,c2,c3=col1.columns(3)
+    c4,c5=col2.columns(2)
+    c2.subheader("Logout")
+    if col1.button("logout",type="primary",width="stretch"):
+        st.session_state.clear()
+        st.switch_page("pages/home.py")
+    c4.subheader("Delete Account")
+    if col2.button("Delete Account",type="primary",width="stretch"):
+        with st.success("Processing..."):
+            del_user=requests.delete("http://127.0.0.1:8000/delete_user",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"})
+        if del_user.status_code==200:
+            ans=del_user.json()
+            if ans["delete"]==True:
+                st.success("User deleted")
+            else:
+             st.error("Error please try again some times latter")
         st.session_state.clear()
         st.switch_page("pages/home.py")

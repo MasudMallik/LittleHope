@@ -79,6 +79,9 @@ else:
                     child["height"]=height
                     child["weight"]=weight
                     child["skin_tone"]=skin_tone
+                    child["birth_marks"]=Birthmarks
+                    child["tattos"]=Tattoos
+                    child["disable"]=disable
                     child["date_of_missing"]=str(date_of_missing)
                     child["time_of_missing"]=str(time_of_missing)
                     child["last_seen_loc"]=Last_seen_location
@@ -88,10 +91,19 @@ else:
                     parent["alternate_no"]=Alternate_contact_number
                     parent["email"]=Email_address
                     parent["address"]=Address
+                    parent["date_and_time"]=str(datetime.datetime.now())
 
-                    data=requests.post("http://127.0.0.1:8000/new_case",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"},
+                    with st.status("uploading your details.."):
+                              data=requests.post("http://127.0.0.1:8000/new_case",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"},
                                                                                                                          json={
                                                                                                                                "child_info":child,
                                                                                                                                "parent_info":parent
                                                                                                                          })
-    
+                    if data.status_code==200:
+                        upload=data.json()
+                        if upload["status_of_upload"]==True:
+                              st.success("Your data succesfully Uploaded")
+                        else:
+                              st.error("not uploaded due to some reason.please try again some time later")
+                                          
+            

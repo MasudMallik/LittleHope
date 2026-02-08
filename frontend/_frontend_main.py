@@ -16,6 +16,10 @@ cases=st.Page(
     page="pages/report_child.py",
     title="upload details"
 )
+posts=st.Page(
+    page="pages/your_posts.py",
+    title="Your posts"
+)
 setting=st.Page(
     page="pages/setting.py",
     title="settings",
@@ -28,7 +32,7 @@ terms_and_conditions=st.Page(
 )
 pg=st.navigation(
     {
-        "information":[home,childs,log,cases,setting,terms_and_conditions]
+        "information":[home,childs,log,cases,posts,setting,terms_and_conditions]
     }
 )
 

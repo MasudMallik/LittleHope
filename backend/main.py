@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+from bson import ObjectId
 load_dotenv()
 
 client=MongoClient(os.getenv("mongo_db_string"))
@@ -89,6 +90,66 @@ async def update_password(request:Request,token:str=Depends(outh2)):
 
 @app.post("/new_case")
 async def new_case(request:Request,token:str=Depends(outh2)):
-    data=await request.json()
-    print(data["child_info"])
-    return {"data":data}
+    try:
+        data=await request.json()
+        user=decode_token(token)
+        db=client["reported_cases"]
+        collection=db[user["name"]]
+        collection.insert_one(data)
+    except Exception:
+        return {"status_of_upload":False}
+    else:
+        return {"status_of_upload":True}
+    
+@app.delete("/delete_user")
+async def del_user(token:str=Depends(outh2)):
+    try:
+        user=decode_token(token)
+        db=client["user_db"]
+        collections=db["all_users"]
+        collections.delete_one({"email": user["email"]})
+        db=client["reported_cases"]
+        print(user["name"])
+        db.drop_collection(user["name"])
+    except Exception:
+        return {"delete":False}
+    else:
+        return {"delete":True}
+    
+@app.get("/your_posts")
+async def all_posts(token:str=Depends(outh2)):
+    user=decode_token(token)
+    db=client["reported_cases"]
+    collections=db[user["name"]]
+    if user["name"] not in db.list_collection_names():
+        return {"posts": False}
+    else:
+        data=list(collections.find())
+        for d in data:
+            d["_id"]=str(d["_id"])
+        return {"posts":True,"all_posts":data}
+
+@app.delete("/delete_post/{id}")
+async def delete_post(id:str,token:str=Depends(outh2)):
+    user=decode_token(token)
+    db=client["reported_cases"]
+    collections=db[user["name"]]
+    try:
+        collections.delete_one({"_id":ObjectId(id)})
+    except Exception:
+        return {"delete_post":False}
+    else:
+        return{"delete_post":True}
+
+@app.get("/all_posts")
+def all_posts():
+    db=client["reported_cases"]
+    collections=db.list_collection_names()
+    result={}
+    for coll in collections:
+        collection=db[coll]
+        docs=list(collection.find())
+        for doc in docs:
+            doc["_id"] = str(doc["_id"])
+        result[coll]=docs
+    return {"result":result}
