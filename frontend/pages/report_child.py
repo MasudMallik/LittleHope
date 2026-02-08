@@ -66,8 +66,6 @@ else:
 
         st.subheader("Upload Image: ")
         img_path=st.file_uploader("Upload Image: ",type=["jpg","png","jpeg"])
-        
-        st.write(img_path)
         st.divider()
       
         st.subheader("Reporter / Parent / Guardian Details")
