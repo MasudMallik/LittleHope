@@ -123,6 +123,7 @@ else:
                         upload=data.json()
                         if upload["status_of_upload"]==True:
                               st.success("Your data succesfully Uploaded")
+                              st.rerun()
                         else:
                               st.error("not uploaded due to some reason.please try again some time later")
                                           
