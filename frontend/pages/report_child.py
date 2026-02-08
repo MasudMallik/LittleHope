@@ -1,6 +1,11 @@
 import streamlit as st
 import datetime
 import requests
+from dotenv import load_dotenv
+import os
+from supabase import create_client,client
+load_dotenv()
+supabase :client =create_client(os.getenv("supabase_url"),os.getenv("supabase_anomkey"))
 if "token" not in st.session_state:
     st.warning("Please login to upload details..")
     if st.button("login",type="primary"):
@@ -27,7 +32,12 @@ else:
               "contact":"",
               "alternate_no":"",
               "email":"",
-              "address":""
+              "address":"",
+        }
+        other={
+                 "date_and_time":"",
+                 "img_path":"",
+                 "file_path":""
         }
         st.title("Upload Missing Child Case....")
         st.divider()
@@ -55,7 +65,8 @@ else:
         st.divider()
 
         st.subheader("Upload Image: ")
-        img_path=st.file_uploader("Upload Image: ",type=["jpg","png"])
+        img_path=st.file_uploader("Upload Image: ",type=["jpg","png","jpeg"])
+        
         st.write(img_path)
         st.divider()
       
@@ -70,7 +81,7 @@ else:
         condition1=st.checkbox("I confirm that information provided is true")
         condition2=st.checkbox("Consent to display details publicly")
         condition3=st.checkbox("Privacy agreement")
-        status=not(condition1 and condition2 and condition3)
+        status=not(condition1 and condition2 and condition3 and img_path)
         if st.button("Submit",type="primary",disabled=status):
                     child["name"]=name
                     child["nick_name"]=nick_name
@@ -91,13 +102,24 @@ else:
                     parent["alternate_no"]=Alternate_contact_number
                     parent["email"]=Email_address
                     parent["address"]=Address
-                    parent["date_and_time"]=str(datetime.datetime.now())
+                    other["date_and_time"]=str(datetime.datetime.now())
+                    files = supabase.storage.from_(os.getenv("bucket")).list()
+                    if img_path is not None:
+                        file_path = f"images/{img_path.name}.{len(files)+1}"
+                        file_bytes = img_path.read()
+                        res = supabase.storage.from_(os.getenv("bucket")).upload(file_path, file_bytes)
+
+                        if res:
+                              public_url = supabase.storage.from_(os.getenv("bucket")).get_public_url(file_path)
+                        other["img_path"]=public_url
+                        other["file_path"]=file_path
 
                     with st.status("uploading your details.."):
                               data=requests.post("http://127.0.0.1:8000/new_case",headers={"Authorization": f"Bearer {st.session_state.token["token"]}"},
                                                                                                                          json={
                                                                                                                                "child_info":child,
-                                                                                                                               "parent_info":parent
+                                                                                                                               "parent_info":parent,
+                                                                                                                               "other":other
                                                                                                                          })
                     if data.status_code==200:
                         upload=data.json()

@@ -40,14 +40,20 @@ else:
                         "alternate_no":post["parent_info"].get("alternate_no"),
                         "email":post["parent_info"].get("email"),
                         "address":post["parent_info"].get("address"),
-                        "date_and_time":post["parent_info"].get("date_and_time")
-                        }}
+                        
+                        },
+                "other":{
+                            "posted on":post["other"].get("date_and_time"),
+                            "img_path":post["other"].get("img_path")
+                        }
+                        }
                 col1.subheader("Child Details...")
                 col1.table(details["child"])
                 st.divider()
                 col2.subheader("Parent Details...")
                 col2.table(details["parent"])
-                col2.write(f"post No:{i}")
+                col2.table(details["other"])
+                col2.subheader(f"post No:{i}")
                 if col2.button(f"Delete post: {i}",type="primary"):
                     with col2.status("post deletion processing..."):
                         del_post=requests.delete(f"http://127.0.0.1:8000/delete_post/{post['_id']}",headers={"Authorization":f"Bearer {st.session_state.token["token"]}"})

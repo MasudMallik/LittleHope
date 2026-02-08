@@ -5,12 +5,13 @@ from backend.modules.token_create import create_token,decode_token
 from fastapi.security import OAuth2PasswordBearer
 from pymongo import MongoClient
 from dotenv import load_dotenv
-import os
 from bson import ObjectId
+import os
+from supabase import create_client,client
 load_dotenv()
 
-client=MongoClient(os.getenv("mongo_db_string"))
-
+cli=MongoClient(os.getenv("mongo_db_string"))
+supabase: client=create_client(os.getenv("supabase_url"),os.getenv("supabase_anomkey"))
 
 outh2=OAuth2PasswordBearer(tokenUrl="token")
 
@@ -27,7 +28,7 @@ async def user_token(request:Request):
 
 @app.post("/login")
 async def login(user:User_for_login):
-    db=client["user_db"]
+    db=cli["user_db"]
     collections=db["all_users"]
     k=collections.find_one({"email":user.email})
     if not k:
@@ -41,7 +42,7 @@ async def login(user:User_for_login):
 @app.post("/register")
 async def new_user(user:User_for_reg):
     new_hash_pw=hash_password(user.password)
-    db=client["user_db"]
+    db=cli["user_db"]
     collection=db["all_users"]
     exist=collection.find_one({"email":user.email})
     if exist:
@@ -60,7 +61,7 @@ async def get_user_det(request:Request,token:str=Depends(outh2)):
 @app.put("/update_user_det")
 async def update_user_info(request:Request,token:str=Depends(outh2)):
     new_data=await request.json()
-    db=client["user_db"]
+    db=cli["user_db"]
     collection=db["all_users"]
     try:
         collection.update_one({"email":new_data["email"]},
@@ -74,7 +75,7 @@ async def update_user_info(request:Request,token:str=Depends(outh2)):
 @app.put("/update_password")
 async def update_password(request:Request,token:str=Depends(outh2)):
     data=await request.json()
-    db=client["user_db"]
+    db=cli["user_db"]
     collection=db["all_users"]
     k=collection.find_one({"email":data["email"]})
     print(data["old_password"])
@@ -93,7 +94,7 @@ async def new_case(request:Request,token:str=Depends(outh2)):
     try:
         data=await request.json()
         user=decode_token(token)
-        db=client["reported_cases"]
+        db=cli["reported_cases"]
         collection=db[user["name"]]
         collection.insert_one(data)
     except Exception:
@@ -105,10 +106,10 @@ async def new_case(request:Request,token:str=Depends(outh2)):
 async def del_user(token:str=Depends(outh2)):
     try:
         user=decode_token(token)
-        db=client["user_db"]
+        db=cli["user_db"]
         collections=db["all_users"]
         collections.delete_one({"email": user["email"]})
-        db=client["reported_cases"]
+        db=cli["reported_cases"]
         print(user["name"])
         db.drop_collection(user["name"])
     except Exception:
@@ -119,8 +120,9 @@ async def del_user(token:str=Depends(outh2)):
 @app.get("/your_posts")
 async def all_posts(token:str=Depends(outh2)):
     user=decode_token(token)
-    db=client["reported_cases"]
+    db=cli["reported_cases"]
     collections=db[user["name"]]
+
     if user["name"] not in db.list_collection_names():
         return {"posts": False}
     else:
@@ -132,8 +134,10 @@ async def all_posts(token:str=Depends(outh2)):
 @app.delete("/delete_post/{id}")
 async def delete_post(id:str,token:str=Depends(outh2)):
     user=decode_token(token)
-    db=client["reported_cases"]
+    db=cli["reported_cases"]
     collections=db[user["name"]]
+    file_path=collections.find_one({"_id":ObjectId(id)})
+    res=supabase.storage.from_(os.getenv("bucket")).remove(file_path["other"].get("file_path"))
     try:
         collections.delete_one({"_id":ObjectId(id)})
     except Exception:
@@ -143,7 +147,7 @@ async def delete_post(id:str,token:str=Depends(outh2)):
 
 @app.get("/all_posts")
 def all_posts():
-    db=client["reported_cases"]
+    db=cli["reported_cases"]
     collections=db.list_collection_names()
     result={}
     for coll in collections:
