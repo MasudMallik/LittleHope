@@ -215,7 +215,7 @@ Users should avoid uploading real personal or sensitive information.
 |------------|----------------|
 | Backend | Render |
 | Frontend | Streamlit Cloud |
-| Storage | mongodb atlas | Supabase |
+| Storage | mongodb atlas , Supabase |
 
 ---
 
